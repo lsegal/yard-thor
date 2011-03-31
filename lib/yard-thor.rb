@@ -14,6 +14,16 @@ class ThorHandler < YARD::Handlers::Ruby::Base
   end
 end
 
+class LegacyThorHandler < YARD::Handlers::Ruby::Legacy::Base
+  namespace_only
+  handles /\Adesc(\s|\()/
+  
+  process do
+    parser.extra_state ||= {}
+	  parser.extra_state[:thor_desc] = tokval_list(statement.tokens[1..-1], :attr)
+  end
+end
+
 module ThorMethodHandlerMixin
   def register(*objs)
     @registered_object = objs.first
@@ -37,12 +47,12 @@ class YARD::Handlers::Ruby::MethodHandler
   include ThorMethodHandlerMixin
 end
 
-module BetterSignature
+class YARD::Handlers::Ruby::Legacy::MethodHandler 
+  include ThorMethodHandlerMixin
 end
 
 module YARD::Templates::Helpers::HtmlHelper
-  alias old_signature signature
-  def signature(meth, link = true, *args)
+  def signature_for_thor_command(meth, link = true, *args)
     if meth.has_tag?(:thor_command)
       sig = link ? link_object(meth, meth.signature) : meth.signature
       "$ " + sig 
@@ -50,5 +60,6 @@ module YARD::Templates::Helpers::HtmlHelper
       old_signature(meth, link, *args)
     end
   end
-  include BetterSignature
+  alias old_signature signature
+  alias signature signature_for_thor_command
 end

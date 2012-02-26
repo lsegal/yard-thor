@@ -5,7 +5,7 @@ end
 class ThorHandler < YARD::Handlers::Ruby::Base
   namespace_only
   handles method_call(:desc)
-  
+
   process do
     parser.extra_state ||= {}
     parser.extra_state[:thor_desc] = statement.parameters(false).map do |param|
@@ -17,10 +17,10 @@ end
 class LegacyThorHandler < YARD::Handlers::Ruby::Legacy::Base
   namespace_only
   handles /\Adesc(\s|\()/
-  
+
   process do
     parser.extra_state ||= {}
-	  parser.extra_state[:thor_desc] = tokval_list(statement.tokens[1..-1], :attr)
+    parser.extra_state[:thor_desc] = tokval_list(statement.tokens[1..-1], :attr)
   end
 end
 
@@ -29,7 +29,7 @@ module ThorMethodHandlerMixin
     @registered_object = objs.first
     super(*objs)
   end
-  
+
   def process
     super
     return if parser.extra_state[:thor_desc].nil?
@@ -43,11 +43,11 @@ module ThorMethodHandlerMixin
   end
 end
 
-class YARD::Handlers::Ruby::MethodHandler 
+class YARD::Handlers::Ruby::MethodHandler
   include ThorMethodHandlerMixin
 end
 
-class YARD::Handlers::Ruby::Legacy::MethodHandler 
+class YARD::Handlers::Ruby::Legacy::MethodHandler
   include ThorMethodHandlerMixin
 end
 
@@ -55,7 +55,7 @@ module YARD::Templates::Helpers::HtmlHelper
   def signature_for_thor_command(meth, link = true, *args)
     if meth.has_tag?(:thor_command)
       sig = link ? link_object(meth, meth.signature) : meth.signature
-      "$ " + sig 
+      "$ " + sig
     else
       old_signature(meth, link, *args)
     end

@@ -8,7 +8,7 @@ class ThorHandler < YARD::Handlers::Ruby::Base
 
   process do
     parser.extra_state ||= {}
-    parser.extra_state[:thor_desc] = statement.parameters(false).map do |param|
+    parser.extra_state.thor_desc = statement.parameters(false).map do |param|
       param.jump(:string_content).source
     end
   end
@@ -20,7 +20,7 @@ class LegacyThorHandler < YARD::Handlers::Ruby::Legacy::Base
 
   process do
     parser.extra_state ||= {}
-    parser.extra_state[:thor_desc] = tokval_list(statement.tokens[1..-1], :attr)
+    parser.extra_state.thor_desc = tokval_list(statement.tokens[1..-1], :attr)
   end
 end
 
@@ -32,14 +32,14 @@ module ThorMethodHandlerMixin
 
   def process
     super
-    return if parser.extra_state[:thor_desc].nil?
-    params, desc = *parser.extra_state[:thor_desc]
+    return if parser.extra_state.thor_desc.nil?
+    params, desc = *parser.extra_state.thor_desc
     @registered_object.docstring = desc
     @registered_object.signature = params
     @registered_object.namespace.groups = ["Thor Commands"]
     @registered_object.group = "Thor Commands"
     @registered_object.docstring.add_tag YARD::Tags::Tag.new(:thor_command, '')
-    parser.extra_state.delete(:thor_desc)
+    parser.extra_state.thor_desc = nil
   end
 end
 
